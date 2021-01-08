@@ -1,0 +1,56 @@
+{
+  "name": "prologue-image",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development APP_ENV=local ts-node-dev --respawn src/index.ts",
+    "clean": "rimraf dist/*",
+    "tsc": "tsc",
+    "build": "npm-run-all clean tsc",
+    "start": "cross-env NODE_ENV=production node .",
+    "deploy:dev": "cross-env APP_ENV=dev GCLOUD_PROJECT=your_dev_project_id npm run gcloud:deploy",
+    "deploy:prod": "cross-env APP_ENV=prod GCLOUD_PROJECT=your_prod_project_id npm run gcloud:deploy",
+    "gcloud:deploy": "npm run gcloud:build && npm run gcloud:run",
+    "gcloud:build": "gcloud --project $GCLOUD_PROJECT builds submit --tag gcr.io/$GCLOUD_PROJECT/imagebuilder",
+    "gcloud:run": "gcloud --project $GCLOUD_PROJECT run deploy imagebuilder --platform managed --region asia-northeast1 --set-env-vars TZ=Asia/Tokyo,APP_ENV=$APP_ENV --image gcr.io/$GCLOUD_PROJECT/imagebuilder",
+    "lint": "eslint --ext .ts,.tsx .",
+    "lint:fix": "eslint --ext .ts,.tsx . --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^4.17.9",
+    "@types/node": "^14.14.20",
+    "@typescript-eslint/eslint-plugin": "^4.12.0",
+    "@typescript-eslint/parser": "^4.12.0",
+    "eslint": "^7.17.0",
+    "eslint-config-prettier": "^7.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "husky": "^4.3.7",
+    "lint-staged": "^10.5.3",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "ts-node": "^9.1.1",
+    "ts-node-dev": "^1.1.1",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "firebase-admin": "^9.4.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "./**/*.{js,jsx,ts,tsx}": [
+      "npm run lint:fix"
+    ]
+  }
+}
